@@ -48,12 +48,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  const handleLogout = () => {
-    Cookies.remove("id_token");
-    setUser(null);
-    window.location.href = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${window.location.origin}/`;
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
