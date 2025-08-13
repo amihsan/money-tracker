@@ -6,6 +6,8 @@ export default function MoneyTracker() {
   const [type, setType] = useState("borrow"); // borrow, loan, return
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [fromWhom, setFromWhom] = useState("");
+  const [toWhom, setToWhom] = useState("");
 
   useEffect(() => {
     fetchTransactions();
@@ -24,15 +26,21 @@ export default function MoneyTracker() {
     e.preventDefault();
     if (!amount || !description) return alert("Please fill all fields");
 
+    let transactionData = {
+      type,
+      amount: Number(amount),
+      description,
+      date: new Date(),
+      fromWhom: type === "borrow" ? fromWhom : "",
+      toWhom: type === "loan" || type === "return" ? toWhom : "",
+    };
+
     try {
-      await addTransaction({
-        type,
-        amount: Number(amount),
-        description,
-        date: new Date(),
-      });
+      await addTransaction(transactionData);
       setAmount("");
       setDescription("");
+      setFromWhom("");
+      setToWhom("");
       fetchTransactions();
     } catch (err) {
       console.error("Failed to add transaction", err);
@@ -84,6 +92,28 @@ export default function MoneyTracker() {
           required
         />
 
+        {type === "borrow" && (
+          <input
+            type="text"
+            value={fromWhom}
+            onChange={(e) => setFromWhom(e.target.value)}
+            placeholder="From whom?"
+            className="p-2 border rounded"
+            required
+          />
+        )}
+
+        {(type === "loan" || type === "return") && (
+          <input
+            type="text"
+            value={toWhom}
+            onChange={(e) => setToWhom(e.target.value)}
+            placeholder="To whom?"
+            className="p-2 border rounded"
+            required
+          />
+        )}
+
         <button
           type="submit"
           className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
@@ -103,34 +133,42 @@ export default function MoneyTracker() {
                 <th className="border p-2">Type</th>
                 <th className="border p-2">Amount</th>
                 <th className="border p-2">Description</th>
+                <th className="border p-2">From Whom</th>
+                <th className="border p-2">To Whom</th>
                 <th className="border p-2">Date</th>
                 <th className="border p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map(({ id, type, amount, description, date }) => {
-                const amountNum = Number(amount);
-                return (
-                  <tr key={id} className="text-center">
-                    <td className="border p-2 capitalize">{type}</td>
-                    <td className="border p-2">
-                      {isNaN(amountNum) ? "$0.00" : `$${amountNum.toFixed(2)}`}
-                    </td>
-                    <td className="border p-2">{description}</td>
-                    <td className="border p-2">
-                      {new Date(date).toLocaleDateString()}
-                    </td>
-                    <td className="border p-2">
-                      <button
-                        onClick={() => handleDelete(id)}
-                        className="text-red-600 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {transactions.map(
+                ({ id, type, amount, description, fromWhom, toWhom, date }) => {
+                  const amountNum = Number(amount);
+                  return (
+                    <tr key={id} className="text-center">
+                      <td className="border p-2 capitalize">{type}</td>
+                      <td className="border p-2">
+                        {isNaN(amountNum)
+                          ? "$0.00"
+                          : `$${amountNum.toFixed(2)}`}
+                      </td>
+                      <td className="border p-2">{description}</td>
+                      <td className="border p-2">{fromWhom || "-"}</td>
+                      <td className="border p-2">{toWhom || "-"}</td>
+                      <td className="border p-2">
+                        {new Date(date).toLocaleDateString()}
+                      </td>
+                      <td className="border p-2">
+                        <button
+                          onClick={() => handleDelete(id)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                }
+              )}
             </tbody>
           </table>
         )}

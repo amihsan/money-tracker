@@ -85,18 +85,7 @@ export default function Dashboard() {
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Money Tracker Dashboard
-          </h1>
-          {/* <div className="flex items-center space-x-4">
-            <div className="text-gray-700 font-medium">{user.email}</div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 transition text-white px-4 py-2 rounded-md"
-            >
-              Logout
-            </button>
-          </div> */}
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
         </div>
       </header>
 
