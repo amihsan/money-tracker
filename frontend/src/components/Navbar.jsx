@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Navbar({ user, onLogin, onLogout }) {
@@ -25,8 +25,11 @@ export default function Navbar({ user, onLogin, onLogout }) {
     <nav className="w-full bg-white shadow-md sticky top-0 z-50">
       <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
         {/* Logo */}
-        <div className="flex-shrink-0 text-2xl font-bold text-indigo-600">
-          Money Tracker
+        <div className="flex items-center space-x-2">
+          <Wallet className="w-8 h-8 text-indigo-600" />
+          <span className="text-2xl font-bold text-indigo-600">
+            Money Tracker
+          </span>
         </div>
 
         {/* Desktop Nav */}
