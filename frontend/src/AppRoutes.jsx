@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import LoginModal from "./components/LoginModal";
+import Footer from "./components/Footer";
 
 // Mock fetch function
 async function fetchUserData(user) {
@@ -57,7 +58,8 @@ export default function AppRoutes() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
+      {/* Background */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-blue-50 via-white to-indigo-100" />
       <div
         className="absolute inset-0 -z-10 opacity-10"
@@ -66,37 +68,43 @@ export default function AppRoutes() {
           backgroundSize: "12px 12px",
         }}
       />
-
+      {/* Navbar */}
       <Navbar
         user={user}
         onLogin={() => setAuthOpen(true)}
         onLogout={handleLogout}
       />
 
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              user={isLoggedIn ? user : null}
-              userData={userData}
-              onLoginClick={() => setAuthOpen(true)}
-            />
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={<Dashboard user={user} userData={userData} />}
-        />
-        <Route
-          path="/profile"
-          element={<Profile user={user} userData={userData} />}
-        />
-      </Routes>
+      {/* Main Content */}
+      <main className="flex-1">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                user={isLoggedIn ? user : null}
+                userData={userData}
+                onLoginClick={() => setAuthOpen(true)}
+              />
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={<Dashboard user={user} userData={userData} />}
+          />
+          <Route
+            path="/profile"
+            element={<Profile user={user} userData={userData} />}
+          />
+        </Routes>
+      </main>
 
+      {/* Login Modal */}
       {!isLoggedIn && authOpen && (
         <LoginModal onClose={() => setAuthOpen(false)} />
       )}
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
