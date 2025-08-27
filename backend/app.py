@@ -1,3 +1,7 @@
+
+
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import boto3
@@ -67,7 +71,6 @@ def add_transaction():
             "person": data.get("person"),
             "amount": data.get("amount"),
             "currency": "EUR",
-            "description": data.get("description", ""),
             "transactionDate": data.get("transactionDate"),
             "deadline": data.get("deadline"),
             "status": "unpaid"
@@ -149,6 +152,45 @@ def mark_paid(transaction_id):
     except Exception as e:
         print("DEBUG: Error marking transaction as paid:", e)
         return jsonify({"error": "Internal server error"}), 500
+    
+
+
+# -----------------------
+# Delete all transactions for a person (hard delete)
+# -----------------------
+@app.route("/transactions/person/<string:person>", methods=["DELETE"])
+def delete_transactions_by_person(person):
+    user = get_user_from_header()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        # Query all transactions for this user & person
+        response = table.query(
+            KeyConditionExpression="user_id = :uid",
+            ExpressionAttributeValues={":uid": user["sub"]}
+        )
+        items = response.get("Items", [])
+
+        # Filter only the given person
+        person_items = [t for t in items if t.get("person") == person]
+
+        deleted = 0
+        with table.batch_writer() as batch:
+            for t in person_items:
+                batch.delete_item(
+                    Key={
+                        "user_id": user["sub"],
+                        "transaction_id": t["transaction_id"],
+                    }
+                )
+                deleted += 1
+
+        return jsonify({"deleted_count": deleted}), 200
+    except Exception as e:
+        print("DEBUG: Error deleting transactions by person:", e)
+        return jsonify({"error": "Internal server error"}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

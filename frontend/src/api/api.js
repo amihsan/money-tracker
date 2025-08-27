@@ -48,4 +48,11 @@ export async function markPaid(id) {
   return res.data;
 }
 
+export async function deleteTransactionsByPerson(person) {
+  const res = await api.delete(
+    `/transactions/person/${encodeURIComponent(person)}`
+  );
+  return res.data;
+}
+
 export default api;

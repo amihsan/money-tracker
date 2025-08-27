@@ -30,7 +30,7 @@ export default function LoginModal({ onClose }) {
     >
       <div className="relative w-full max-w-md">
         <div className="rounded-2xl shadow-2xl">
-          <Authenticator socialProviders={["google"]} hideSignUp={true} />
+          <Authenticator socialProviders={["google"]} />
         </div>
       </div>
     </div>
