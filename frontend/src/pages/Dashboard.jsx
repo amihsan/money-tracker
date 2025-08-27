@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { PlusCircle, Trash2, CheckCircle2, Calendar, Info } from "lucide-react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import DatePickerCell from "../components/DatePickerCell";
 
 import {
   getTransactions,
@@ -96,7 +96,6 @@ export default function Dashboard({ user }) {
     );
   };
 
-  // Person summary with net calculations
   const personSummary = useMemo(() => {
     const summary = {};
     transactions.forEach((t) => {
@@ -125,7 +124,6 @@ export default function Dashboard({ user }) {
       const totalBorrow = s.borrowed - s.returned;
       const totalLent = s.lent - s.returnFromLent;
 
-      // Correct net calculation
       if (totalBorrow >= totalLent) {
         s.netBorrowed = totalBorrow - totalLent;
         s.netLent = 0;
@@ -134,7 +132,6 @@ export default function Dashboard({ user }) {
         s.netLent = totalLent - totalBorrow;
       }
 
-      // Status: paid only if previously marked and both net=0
       s.status =
         s.netBorrowed === 0 &&
         s.netLent === 0 &&
@@ -159,9 +156,13 @@ export default function Dashboard({ user }) {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-600">
-        <h2 className="text-2xl font-semibold mb-2">You’re not logged in</h2>
-        <p className="text-gray-500">Please log in to access the dashboard.</p>
+      <div className="flex flex-col items-center justify-center h-full text-gray-600 p-4">
+        <h2 className="text-2xl font-semibold mb-2 text-center">
+          You’re not logged in
+        </h2>
+        <p className="text-gray-500 text-center">
+          Please log in to access the dashboard.
+        </p>
       </div>
     );
   }
@@ -169,159 +170,134 @@ export default function Dashboard({ user }) {
   return (
     <div className="mt-6 w-full max-w-full px-2 sm:px-4">
       {/* Welcome Message */}
-      <div className="mb-6 p-6 bg-indigo-50 border border-indigo-200 rounded-xl shadow text-center">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-2">
+      <div className="mb-6 p-4 sm:p-6 bg-indigo-50 border border-indigo-200 rounded-xl shadow text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-2">
           Welcome back, {user.signInDetails?.loginId || user.username}!
         </h2>
-        <p className="text-gray-700">
+        <p className="text-gray-700 text-sm sm:text-base">
           Here’s your financial overview. You can add new transactions below and
           manage existing ones.
         </p>
       </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow">
-          <h2 className="text-sm text-gray-600">Net Borrowed</h2>
-          <p className="text-xl font-bold text-red-700">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow text-center sm:text-left">
+          <h2 className="text-sm sm:text-base text-gray-600">Total Borrowed</h2>
+          <p className="text-xl sm:text-2xl font-bold text-red-700">
             € {totals.netBorrowed.toFixed(2)}
           </p>
         </div>
-        <div className="p-4 bg-green-50 border border-green-200 rounded-xl shadow">
-          <h2 className="text-sm text-gray-600">Net Lent</h2>
-          <p className="text-xl font-bold text-green-700">
+        <div className="p-4 bg-green-50 border border-green-200 rounded-xl shadow text-center sm:text-left">
+          <h2 className="text-sm sm:text-base text-gray-600">Total Lent</h2>
+          <p className="text-xl sm:text-2xl font-bold text-green-700">
             € {totals.netLent.toFixed(2)}
           </p>
         </div>
       </div>
 
       {/* Add Transaction Form */}
-      <div className="mb-6 p-6 bg-white rounded-xl shadow border">
-        <h2 className="text-lg font-semibold mb-4 text-gray-700">
+      <div className="mb-6 p-4 sm:p-6 bg-white rounded-xl shadow border">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700 text-center sm:text-left">
           Add Transaction
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3  ">
           <select
             name="type"
             value={form.type}
             onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
+            className="p-2 border rounded-lg w-full text-sm sm:text-base h-10 sm:h-10"
           >
             <option value="borrowed">Borrowed From</option>
             <option value="lent">Lent To</option>
             <option value="returned">Returned To</option>
             <option value="returnFromLent">Return From Lent</option>
           </select>
+
           <input
             type="text"
             name="person"
             value={form.person}
             onChange={handleChange}
             placeholder="Person"
-            className="p-2 border rounded-lg w-full"
+            className="p-2 border rounded-lg w-full text-sm sm:text-base h-10 sm:h-10"
           />
+
           <input
             type="number"
             name="amount"
             value={form.amount}
             onChange={handleChange}
             placeholder="Amount (€)"
-            className="p-2 border rounded-lg w-full"
+            className="p-2 border rounded-lg w-full text-sm sm:text-base h-10 sm:h-10"
           />
-          {/* Transaction Date with Calendar and nicer tooltip */}
-          <div className="relative w-full flex items-center">
-            {/* DatePicker input */}
-            <div className="relative w-full">
-              <DatePicker
-                selected={form.transactionDate}
-                onChange={(date) => setForm({ ...form, transactionDate: date })}
-                placeholderText="Transaction Date"
-                dateFormat="yyyy-MM-dd"
-                className="p-2 border rounded-lg w-full pl-10"
-              />
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-600 pointer-events-none" />
-            </div>
+          {/* Transaction Date */}
+          <DatePickerCell
+            value={form.transactionDate}
+            onChange={(date) => setForm({ ...form, transactionDate: date })}
+            placeholder="Transaction Date"
+            tooltip="(optional) Select the date when this transaction occurred"
+          />
 
-            {/* Info icon */}
-            <div className="relative -ml-17 group flex-shrink-0">
-              <Info className="w-4 h-4 text-gray-400 cursor-pointer" />
-              <span className="absolute -top-16 left-1/2 -translate-x-1/2 w-56 p-2 text-xs text-gray-800 bg-indigo-100 border border-indigo-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-center pointer-events-none">
-                (optional) Select the date when this transaction occurred
-              </span>
-            </div>
-          </div>
-
-          {/* Deadline with Calendar and nicer tooltip */}
-          <div className="relative w-full flex items-center">
-            {/* DatePicker input */}
-            <div className="relative w-full">
-              <DatePicker
-                selected={form.deadline}
-                onChange={(date) => setForm({ ...form, deadline: date })}
-                placeholderText="Deadline"
-                dateFormat="yyyy-MM-dd"
-                className="p-2 border rounded-lg w-full pl-10"
-              />
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-600 pointer-events-none" />
-            </div>
-
-            {/* Info icon */}
-            <div className="relative -ml-31 group flex-shrink-0">
-              <Info className="w-4 h-4 text-gray-400 cursor-pointer" />
-              <span className="absolute -top-16 left-1/2 -translate-x-1/2 w-56 p-2 text-xs text-gray-800 bg-indigo-100 border border-indigo-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity text-center pointer-events-none">
-                (optional) Select the payment deadline for this transaction
-              </span>
-            </div>
-          </div>
+          {/* Deadline */}
+          <DatePickerCell
+            value={form.deadline}
+            onChange={(date) => setForm({ ...form, deadline: date })}
+            placeholder="Deadline"
+            tooltip="(optional) Select the payment deadline for this transaction"
+          />
         </div>
         <button
           onClick={addTransaction}
-          className="mt-4 flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          className="mt-4 w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base"
         >
-          <PlusCircle className="w-5 h-5" />
+          <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
           Add
         </button>
       </div>
 
       {/* Person Summary Table */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-green-500 mb-4 text-center">
+        <h2 className="text-xl sm:text-2xl font-semibold text-green-500 mb-4 text-center">
           Transactions by Person
         </h2>
         <div className="bg-white rounded-xl shadow border overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse text-sm sm:text-base">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="p-3">Person</th>
-                <th className="p-3">Borrowed</th>
-                <th className="p-3">Returned</th>
-                <th className="p-3">Lent</th>
-                <th className="p-3">Return From Lent</th>
-                <th className="p-3">Net Borrowed</th>
-                <th className="p-3">Net Lent</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Actions</th>
+                <th className="p-2 sm:p-3">Person</th>
+                <th className="p-2 sm:p-3">Borrowed</th>
+                <th className="p-2 sm:p-3">Returned</th>
+                <th className="p-2 sm:p-3">Lent</th>
+                <th className="p-2 sm:p-3">Return From Lent</th>
+                <th className="p-2 sm:p-3">Total Borrowed</th>
+                <th className="p-2 sm:p-3">Total Lent</th>
+                <th className="p-2 sm:p-3">Status</th>
+                <th className="p-2 sm:p-3">Actions</th>
               </tr>
             </thead>
             <tbody>
               {Object.entries(personSummary).map(([person, s]) => (
                 <tr
                   key={person}
-                  className="border-b hover:bg-gray-50 transition"
+                  className="border-b hover:bg-gray-50 transition text-sm sm:text-base"
                 >
-                  <td className="p-3">{person}</td>
-                  <td className="p-3 text-red-700">
+                  <td className="p-2 sm:p-3">{person}</td>
+                  <td className="p-2 sm:p-3 text-red-700">
                     € {s.borrowed.toFixed(2)}
                   </td>
-                  <td className="p-3 text-green-700">
+                  <td className="p-2 sm:p-3 text-green-700">
                     € {s.returned.toFixed(2)}
                   </td>
-                  <td className="p-3 text-yellow-700">€ {s.lent.toFixed(2)}</td>
-                  <td className="p-3 text-teal-700">
+                  <td className="p-2 sm:p-3 text-yellow-700">
+                    € {s.lent.toFixed(2)}
+                  </td>
+                  <td className="p-2 sm:p-3 text-teal-700">
                     € {s.returnFromLent.toFixed(2)}
                   </td>
-                  <td className="p-3">€ {s.netBorrowed.toFixed(2)}</td>
-                  <td className="p-3">€ {s.netLent.toFixed(2)}</td>
-                  <td className="p-3">
+                  <td className="p-2 sm:p-3">€ {s.netBorrowed.toFixed(2)}</td>
+                  <td className="p-2 sm:p-3">€ {s.netLent.toFixed(2)}</td>
+                  <td className="p-2 sm:p-3">
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${
                         s.status === "paid"
@@ -332,8 +308,7 @@ export default function Dashboard({ user }) {
                       {s.status}
                     </span>
                   </td>
-                  <td className="p-3 flex gap-2">
-                    {/* Mark icon always visible */}
+                  <td className="p-2 sm:p-3 flex gap-2">
                     <button
                       onClick={() => markPaid(person)}
                       className={`${
@@ -341,11 +316,10 @@ export default function Dashboard({ user }) {
                           ? "text-green-600 hover:text-green-800"
                           : "text-gray-400 cursor-not-allowed"
                       }`}
-                      title="Mark as Paid (enabled when netBorrowed & netLent = 0)"
+                      title="Mark as Paid"
                     >
-                      <CheckCircle2 className="w-5 h-5" />
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
-                    {/* Delete visible only when marked paid */}
                     {s.status === "paid" && (
                       <button
                         onClick={async () => {
@@ -364,7 +338,7 @@ export default function Dashboard({ user }) {
                         className="text-red-600 hover:text-red-800"
                         title="Delete all transactions for this person"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     )}
                   </td>
@@ -377,19 +351,19 @@ export default function Dashboard({ user }) {
 
       {/* Transactions Table */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-indigo-500 mb-4 text-center">
+        <h2 className="text-xl sm:text-2xl font-semibold text-indigo-500 mb-4 text-center">
           Transaction History
         </h2>
         <div className="bg-white rounded-xl shadow border overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse text-sm sm:text-base">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="p-3">Type</th>
-                <th className="p-3">Person</th>
-                <th className="p-3">Amount</th>
-                <th className="p-3">Transaction Date</th>
-                <th className="p-3">Deadline</th>
-                <th className="p-3">Actions</th>
+                <th className="p-2 sm:p-3">Type</th>
+                <th className="p-2 sm:p-3">Person</th>
+                <th className="p-2 sm:p-3">Amount</th>
+                <th className="p-2 sm:p-3">Transaction Date</th>
+                <th className="p-2 sm:p-3">Deadline</th>
+                <th className="p-2 sm:p-3">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -411,36 +385,34 @@ export default function Dashboard({ user }) {
                   .map((t) => (
                     <tr
                       key={t.transaction_id}
-                      className="border-b hover:bg-gray-50 transition"
+                      className="border-b hover:bg-gray-50 transition text-sm sm:text-base"
                     >
                       <td
-                        className={`p-3 font-semibold ${
+                        className={`p-2 sm:p-3 font-semibold ${
                           t.type === "borrowed"
                             ? "text-red-700"
                             : t.type === "lent"
                             ? "text-yellow-700"
                             : t.type === "returned"
                             ? "text-green-700"
-                            : t.type === "returnFromLent"
-                            ? "text-teal-700"
-                            : ""
+                            : "text-teal-700"
                         }`}
                       >
                         {t.type.replace(/([A-Z])/g, " $1")}
                       </td>
-                      <td className="p-3">{t.person}</td>
-                      <td className="p-3">
+                      <td className="p-2 sm:p-3">{t.person}</td>
+                      <td className="p-2 sm:p-3">
                         € {Number(t.amount || 0).toFixed(2)}
                       </td>
-                      <td className="p-3">{t.transactionDate || "-"}</td>
-                      <td className="p-3">{t.deadline || "-"}</td>
-                      <td className="p-3 flex gap-2">
+                      <td className="p-2 sm:p-3">{t.transactionDate || "-"}</td>
+                      <td className="p-2 sm:p-3">{t.deadline || "-"}</td>
+                      <td className="p-2 sm:p-3 flex gap-2">
                         <button
                           onClick={() => hideTransaction(t.transaction_id)}
                           className="text-red-600 hover:text-red-800"
                           title="Hide Transaction"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                       </td>
                     </tr>
