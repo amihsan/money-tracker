@@ -33,7 +33,7 @@ def get_user_from_header():
 # -----------------------
 # Get all transactions
 # -----------------------
-@app.route("/transactions", methods=["GET"])
+@app.route("/api/transactions", methods=["GET"])
 def get_transactions():
     user = get_user_from_header()
     if not user:
@@ -53,7 +53,7 @@ def get_transactions():
 # -----------------------
 # Add a transaction
 # -----------------------
-@app.route("/transactions", methods=["POST"])
+@app.route("/api/transactions", methods=["POST"])
 def add_transaction():
     user = get_user_from_header()
     if not user:
@@ -86,7 +86,7 @@ def add_transaction():
 # -----------------------
 # Update a transaction
 # -----------------------
-@app.route("/transactions/<transaction_id>", methods=["PUT"])
+@app.route("/api/transactions/<transaction_id>", methods=["PUT"])
 def update_transaction(transaction_id):
     user = get_user_from_header()
     if not user:
@@ -113,7 +113,7 @@ def update_transaction(transaction_id):
 # -----------------------
 # Delete a transaction
 # -----------------------
-@app.route("/transactions/<transaction_id>", methods=["DELETE"])
+@app.route("/api/transactions/<transaction_id>", methods=["DELETE"])
 def delete_transaction(transaction_id):
     user = get_user_from_header()
     if not user:
@@ -131,7 +131,7 @@ def delete_transaction(transaction_id):
 # -----------------------
 # Mark transaction as paid
 # -----------------------
-@app.route("/transactions/<transaction_id>/mark-paid", methods=["PUT"])
+@app.route("/api/transactions/<transaction_id>/mark-paid", methods=["PUT"])
 def mark_paid(transaction_id):
     user = get_user_from_header()
     if not user:
@@ -158,7 +158,7 @@ def mark_paid(transaction_id):
 # -----------------------
 # Delete all transactions for a person (hard delete)
 # -----------------------
-@app.route("/transactions/person/<string:person>", methods=["DELETE"])
+@app.route("/api/transactions/person/<string:person>", methods=["DELETE"])
 def delete_transactions_by_person(person):
     user = get_user_from_header()
     if not user:

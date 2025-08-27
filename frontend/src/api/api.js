@@ -24,33 +24,33 @@ api.interceptors.request.use(async (config) => {
 });
 
 export async function getTransactions() {
-  const res = await api.get("/transactions");
+  const res = await api.get("/api/transactions");
   return res.data;
 }
 
 export async function addTransaction(transaction) {
-  const res = await api.post("/transactions", transaction);
+  const res = await api.post("/api/transactions", transaction);
   return res.data;
 }
 
 export async function updateTransaction(id, updates) {
-  const res = await api.put(`/transactions/${id}`, updates);
+  const res = await api.put(`/api/transactions/${id}`, updates);
   return res.data;
 }
 
 export async function deleteTransaction(id) {
-  const res = await api.delete(`/transactions/${id}`);
+  const res = await api.delete(`/api/transactions/${id}`);
   return res.data;
 }
 
 export async function markPaid(id) {
-  const res = await api.put(`/transactions/${id}/mark-paid`);
+  const res = await api.put(`/api/transactions/${id}/mark-paid`);
   return res.data;
 }
 
 export async function deleteTransactionsByPerson(person) {
   const res = await api.delete(
-    `/transactions/person/${encodeURIComponent(person)}`
+    `/api/transactions/person/${encodeURIComponent(person)}`
   );
   return res.data;
 }
