@@ -1,7 +1,7 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 # copy only frontend dependencies
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm install
 
 # copy rest of frontend
