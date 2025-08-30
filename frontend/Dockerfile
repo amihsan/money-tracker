@@ -5,7 +5,8 @@ COPY frontend/package*.json ./
 RUN npm install
 
 # copy rest of frontend
-COPY frontend/ ./
+COPY . .
+
 RUN npm run build
 
 FROM nginx:alpine

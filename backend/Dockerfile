@@ -5,8 +5,9 @@ FROM python:3.12-alpine
 WORKDIR /app
 
 # Install dependencies
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt  gunicorn
+# Install dependencies first (better layer caching)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 # Copy source code
 COPY . .
