@@ -1,0 +1,144 @@
+# This GitHub Actions workflow file automates the CI/CD process for a quiz application.
+# It builds and tests the frontend (React) and backend (Flask) applications,
+name: CI/CD for Quiz App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Ttest_build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Images
+        run: |
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest -f frontend/Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest -f backend/Dockerfile .
+          docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest
+
+      - name: Set up SSH key for EC2
+        run: |
+          mkdir -p ~/.ssh  # Create the .ssh directory if it doesn't exist
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  # Set proper permissions for the SSH key
+
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_HOST_DNS }} "echo SSH connection successful"
+
+      - name: SSH into EC2 Instance and deploy with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST_DNS }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e  # Exit immediately if a command exits with a non-zero status
+
+            # Directly export DOCKER_USERNAME in the SSH session
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+
+            # Check if DOCKER_USERNAME is set correctly
+            echo "DOCKER_USERNAME is: $DOCKER_USERNAME"
+
+            sudo yum update
+
+            # Check if Git is installed
+            if ! command -v git &> /dev/null; then
+                echo "Git is not installed."
+                INSTALL_GIT=true
+            else
+                echo "Git is already installed."
+                INSTALL_GIT=false
+            fi
+
+            # Install Git if not already installed
+            if [ "$INSTALL_GIT" = true ]; then
+                sudo yum update
+                sudo yum install -y git
+            fi
+
+            # Check if the target directory is already a git repository
+            if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
+                # If the directory is a git repository, navigate to it
+                cd ${{ secrets.EC2_TARGET_DIR }}
+
+                # Stash any local changes
+                echo "Stashing local changes..."
+                git stash
+
+                # Pull the latest changes from the main branch
+                echo "Pulling latest changes..."
+                git pull origin main
+            else
+                # If the directory is not a git repository, clone the repository
+                echo "Cloning repository..."
+                git clone https://github.com/amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }}
+            fi
+
+            # Update known_hosts to prevent SSH connection issues
+            mkdir -p ~/.ssh
+            ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
+
+            # Check if Docker Compose is installed, if not, install it
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Installing Docker Compose..."
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            echo "Docker Compose version:"
+            docker-compose version
+
+            # Check if Docker is installed
+            if ! command -v docker &> /dev/null; then
+                echo "Docker is not installed. Installing Docker..."
+                sudo yum update -y
+                sudo yum install -y docker
+                sudo service docker start
+                sudo usermod -aG docker ${{ secrets.EC2_USERNAME }}
+            else
+                echo "Docker is already installed."
+            fi
+
+            # Check if the Docker service is running
+            if ! sudo systemctl is-active --quiet docker; then
+                echo "Docker is installed but not running. Starting Docker..."
+                sudo service docker start
+            fi
+
+            # Deploy containers using Docker Compose
+            echo "Deploying containers with Docker Compose..."
+            # For Production
+            # stop all running containers
+            docker-compose down
+
+            # Remove all images
+            echo "Removing all Docker images..."
+            docker images -q | xargs -r docker rmi
+
+            # Run the application and force no-cache rebuild of Docker images
+            echo "Deploying containers with Docker Compose..."
+            docker-compose up -d
+
+            # For development
+            # docker-compose -f docker-compose-dev.yml up --build -d
+
+            # List all Docker images (useful to confirm the pulled and built images)
+            echo "Displaying all Docker images..."
+            docker images -a
+
+            # List all Docker containers (useful to verify if containers are up and running)
+            echo "Displaying all Docker containers..."
+            docker ps -a
