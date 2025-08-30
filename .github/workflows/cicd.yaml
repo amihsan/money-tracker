@@ -1,6 +1,6 @@
-# This GitHub Actions workflow file automates the CI/CD process for a quiz application.
+# This GitHub Actions workflow file automates the CI/CD process for a money tracker application.
 # It builds and tests the frontend (React) and backend (Flask) applications,
-name: CI/CD for Quiz App
+name: CI/CD for Money Tracker App
 
 on:
   push:
