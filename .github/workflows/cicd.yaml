@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  Ttest_build_and_deploy:
+  Test_build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
