@@ -145,7 +145,7 @@ jobs:
             # Cleanup dangling images only
             docker image prune -f
 
-            # Verify
+            # Verify Docker images and containers
             echo "Docker images:"
             docker images -a
             echo "Docker containers:"
