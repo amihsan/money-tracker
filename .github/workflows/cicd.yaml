@@ -74,20 +74,26 @@ jobs:
             fi
 
             # Check if the target directory is already a git repository 
-            if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then 
-              # If the directory is a git repository, navigate to it 
-              cd ${{ secrets.EC2_TARGET_DIR }} 
-              # Stash any local changes 
-              echo "Stashing local changes..." 
-              git stash 
-              # Pull the latest changes from the main branch 
-              echo "Pulling latest changes..." 
-              git pull origin main 
-            else 
-              # If the directory is not a git repository, clone the repository 
-              echo "Cloning repository..." 
-              git clone https://github.com/amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }} 
+            if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
+              cd ${{ secrets.EC2_TARGET_DIR }}
+              echo "Stashing local changes..."
+              git stash || true
+              echo "Pulling latest changes..."
+              git pull origin main
+            else
+              if [ -d "${{ secrets.EC2_TARGET_DIR }}" ]; then
+                echo "Target directory exists but is not a git repo. Initializing git..."
+                cd ${{ secrets.EC2_TARGET_DIR }}
+                git init
+                git remote add origin https://github.com/amihsan/money-tracker.git
+                git fetch
+                git checkout -t origin/main -f
+              else
+                echo "Cloning repository..."
+                git clone https://github.com/amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }}
+              fi
             fi
+
 
             # Update known_hosts to prevent SSH issues
             mkdir -p ~/.ssh
