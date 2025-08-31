@@ -73,26 +73,27 @@ jobs:
               sudo $PKG_MANAGER install -y git
             fi
 
-            TARGET_DIR="${{ secrets.EC2_TARGET_DIR }}"
+            TARGET_DIR="$(echo "${{ secrets.EC2_TARGET_DIR }}" | tr -d '\r\n')"
+            REPO_URL="https://github.com/amihsan/money-tracker.git"
 
-            if [ -d "$TARGET_DIR/.git" ]; then
+            # Ensure target directory exists
+            mkdir -p "$TARGET_DIR"
+            cd "$TARGET_DIR" || { echo "Failed to cd into $TARGET_DIR"; exit 1; }
+
+            if [ -d ".git" ]; then
                 echo "Repository exists. Updating..."
-                cd "$TARGET_DIR"
                 git fetch origin main
                 git rebase origin/main
             else
-                cd "$TARGET_DIR"
-                
-                # Initialize git if not already a repo
-                if [ ! -d ".git" ]; then
-                    echo "Initializing git repository..."
-                    git init
-                    git remote add origin https://<TOKEN>@github.com/amihsan/money-tracker.git
-                    git fetch origin main
-                    git checkout -b main
-                    git pull origin main --allow-unrelated-histories
-                fi
+                echo "Directory exists but is not a git repo. Initializing..."
+                git init
+                git remote add origin "$REPO_URL"
+                git fetch origin main
+                git checkout -b main
+                git pull origin main --allow-unrelated-histories
             fi
+
+            echo "Deployment updated successfully!"
 
 
 
