@@ -108,5 +108,5 @@ jobs:
             docker-compose version
 
             # # For Production
-            chmod +x ./init-letsencrypt.sh
-            sudo ./init-letsencrypt.sh
+            # chmod +x ./init-letsencrypt.sh
+            # sudo ./init-letsencrypt.sh
