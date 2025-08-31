@@ -100,10 +100,6 @@ jobs:
 
             echo "Deployment updated successfully!"
 
-
-
-
-
             # Update known_hosts to prevent SSH issues
             mkdir -p ~/.ssh
             ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
