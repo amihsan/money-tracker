@@ -137,15 +137,17 @@ jobs:
 
             # Deploy containers
             echo "Deploying containers with Docker Compose..."
-            docker-compose down
-            docker images -a
-            docker image prune -a
 
+            # Pull new images and recreate changed services
             docker-compose pull
             docker-compose up -d --remove-orphans
 
-            # Verify running containers
+            # Cleanup dangling images only
+            docker image prune -f
+
+            # Verify
             echo "Docker images:"
             docker images -a
             echo "Docker containers:"
             docker ps -a
+            echo "Deployment completed successfully!"
