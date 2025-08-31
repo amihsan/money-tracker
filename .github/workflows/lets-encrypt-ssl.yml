@@ -133,12 +133,8 @@ jobs:
             fi
             cd ${{ secrets.EC2_TARGET_DIR }}
 
-            # Deploy containers
-            echo "Deploying containers with Docker Compose..."
-
-            # Pull new images and recreate changed services
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            # Stop all running containers
+            docker-compose down
 
             # Cleanup dangling images only
             docker image prune -f
