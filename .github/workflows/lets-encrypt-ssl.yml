@@ -107,8 +107,7 @@ jobs:
             echo "Docker Compose version:"
             docker-compose version
 
-            # Stop existing containers 
-            docker-compose down
+      
 
 
             # # Cleanup dangling images only
