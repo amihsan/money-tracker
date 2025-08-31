@@ -16,5 +16,5 @@ docker-compose.yml
 npm-debug.log*
 .env
 yarn
-# src/amplifyconfiguration.json
-# amplify/
+src/amplifyconfiguration.json
+amplify/
