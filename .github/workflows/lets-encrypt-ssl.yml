@@ -71,11 +71,17 @@ jobs:
               sudo $PKG_MANAGER install -y git
             fi
 
+            # Clone or pull the latest code from the repository
+            TARGET_DIR="$(echo "${{ secrets.EC2_TARGET_DIR }}" | tr -d '\r\n')"
+            REPO_URL="https://github.com/amihsan/money-tracker.git"
+
             # Check if the target directory is already a git repository
-            if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
-                # If the directory is a git repository, navigate to it
-                cd ${{ secrets.EC2_TARGET_DIR }}
-                
+            # Ensure target directory exists
+            mkdir -p "$TARGET_DIR"
+            cd "$TARGET_DIR" || { echo "Failed to cd into $TARGET_DIR"; exit 1; }
+
+            if [ -d ".git" ]; then
+                echo "Repository exists. Updating..."
                 # Stash any local changes
                 echo "Stashing local changes..."
                 git stash
@@ -84,10 +90,19 @@ jobs:
                 echo "Pulling latest changes..."
                 git pull origin main
             else
-                # If the directory is not a git repository, clone the repository
-                echo "Cloning repository..."
-                git clone https://github.com/amihsan/money-tracker-app.git ${{ secrets.EC2_TARGET_DIR }}
+                echo "Directory exists but is not a git repo. Initializing..."
+                git init
+                git remote add origin "$REPO_URL"
+                git fetch origin main
+                git checkout -b main
+                git pull origin main --allow-unrelated-histories
             fi
+
+            echo "Deployment updated successfully!"
+
+
+
+
 
             # Update known_hosts to prevent SSH issues
             mkdir -p ~/.ssh
