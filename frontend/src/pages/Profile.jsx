@@ -75,9 +75,13 @@ export default function Profile({ user, onLogout }) {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-600">
-        <h2 className="text-2xl font-semibold mb-2">You’re not logged in</h2>
-        <p className="text-gray-500">Please log in to view your profile.</p>
+      <div className="flex flex-col items-center justify-center h-full text-gray-600 p-4">
+        <h2 className="text-2xl font-semibold mb-2 text-center">
+          You’re not logged in
+        </h2>
+        <p className="text-gray-500 text-center">
+          Please log in to view your profile.
+        </p>
       </div>
     );
   }
