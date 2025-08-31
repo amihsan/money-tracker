@@ -73,27 +73,24 @@ jobs:
               sudo $PKG_MANAGER install -y git
             fi
 
-            # Check if the target directory already exists
+            # Check if the target directory is already a git repository
             if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
-              # Case 1: directory is a git repo → just pull updates
-              cd ${{ secrets.EC2_TARGET_DIR }}
-              echo "Stashing local changes..."
-              git stash || true
-              echo "Pulling latest changes..."
-              git pull origin main
+                # If the directory is a git repository, navigate to it
+                cd ${{ secrets.EC2_TARGET_DIR }}
 
-            elif [ -d "${{ secrets.EC2_TARGET_DIR }}" ]; then
-              # Case 2: directory exists but is NOT a git repo → clean it
-              echo "Target directory exists but is not a git repo. Cleaning..."
-              rm -rf ${{ secrets.EC2_TARGET_DIR }}
-              echo "Cloning repository..."
-              git clone https://github.com/amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }}
+                # Stash any local changes
+                echo "Stashing local changes..."
+                git stash
 
+                # Pull the latest changes from the main branch
+                echo "Pulling latest changes..."
+                git pull origin main
             else
-              # Case 3: directory does not exist → fresh clone
-              echo "Cloning repository..."
-              git clone https://github.com/amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }}
+                # If the directory is not a git repository, clone the repository
+                echo "Cloning repository..."
+                git clone https://github.com/amihsan/quiz-app.git ${{ secrets.EC2_TARGET_DIR }}
             fi
+
 
 
 
