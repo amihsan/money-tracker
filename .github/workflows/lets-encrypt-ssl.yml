@@ -1,4 +1,4 @@
-name: CI/CD for SSL Letsencrypt
+name: CI/CD for SSL Letsencrypt Certificate
 
 on:
   push:
@@ -142,7 +142,7 @@ jobs:
 
             # Cleanup dangling images only
             docker image prune -f
-            
+
             # For Production
             chmod +x ./init-letsencrypt.sh
             sudo ./init-letsencrypt.sh
