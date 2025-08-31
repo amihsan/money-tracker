@@ -11,7 +11,6 @@ export default function Profile({ user, onLogout }) {
   });
   const [editing, setEditing] = useState({});
   const [avatarFile, setAvatarFile] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
@@ -21,8 +20,6 @@ export default function Profile({ user, onLogout }) {
         setProfile(res.data);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     }
     fetchProfile();
@@ -76,7 +73,14 @@ export default function Profile({ user, onLogout }) {
     }
   };
 
-  if (loading) return <p className="text-center py-10">Loading...</p>;
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-gray-600">
+        <h2 className="text-2xl font-semibold mb-2">You’re not logged in</h2>
+        <p className="text-gray-500">Please log in to view your profile.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-xl mt-6">
