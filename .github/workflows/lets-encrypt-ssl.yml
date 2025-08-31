@@ -45,9 +45,6 @@ jobs:
           script: |
             set -e
 
-            # Export Docker Hub username
-            export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
-
             # Detect Amazon Linux version
             if [ -f /etc/os-release ]; then
               . /etc/os-release
@@ -107,6 +104,6 @@ jobs:
             echo "Docker Compose version:"
             docker-compose version
 
-            # # For Production
-            chmod +x ./init-letsencrypt.sh
-            sudo ./init-letsencrypt.sh
+            # # # For Production
+            # chmod +x ./init-letsencrypt.sh
+            # sudo ./init-letsencrypt.sh
