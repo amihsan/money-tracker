@@ -3,7 +3,7 @@ services:
     restart: unless-stopped
     image: ${DOCKER_USERNAME}/money-tracker-frontend:latest
     ports:
-      - 80:80
+      - 8080:80
     env_file:
       - ./frontend/.env
     volumes:
