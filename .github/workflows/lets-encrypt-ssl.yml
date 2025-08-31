@@ -100,47 +100,47 @@ jobs:
 
             echo "Deployment updated successfully!"
 
-            # Update known_hosts to prevent SSH issues
-            mkdir -p ~/.ssh
-            ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
+            # # Update known_hosts to prevent SSH issues
+            # mkdir -p ~/.ssh
+            # ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
 
-            # Install Docker if missing
-            if ! command -v docker &> /dev/null; then
-              echo "Installing Docker..."
-              sudo $PKG_MANAGER install -y docker
-              sudo systemctl enable docker
-              sudo systemctl start docker
-              sudo usermod -aG docker ${{ secrets.EC2_USERNAME }}
-            fi
+            # # Install Docker if missing
+            # if ! command -v docker &> /dev/null; then
+            #   echo "Installing Docker..."
+            #   sudo $PKG_MANAGER install -y docker
+            #   sudo systemctl enable docker
+            #   sudo systemctl start docker
+            #   sudo usermod -aG docker ${{ secrets.EC2_USERNAME }}
+            # fi
 
-            # Ensure Docker is running
-            if ! sudo systemctl is-active --quiet docker; then
-              echo "Starting Docker service..."
-              sudo systemctl start docker
-            fi
+            # # Ensure Docker is running
+            # if ! sudo systemctl is-active --quiet docker; then
+            #   echo "Starting Docker service..."
+            #   sudo systemctl start docker
+            # fi
 
-            # Install Docker Compose if missing
-            if ! command -v docker-compose &> /dev/null; then
-              echo "Installing Docker Compose..."
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
-            fi
+            # # Install Docker Compose if missing
+            # if ! command -v docker-compose &> /dev/null; then
+            #   echo "Installing Docker Compose..."
+            #   sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            #   sudo chmod +x /usr/local/bin/docker-compose
+            # fi
 
-            echo "Docker Compose version:"
-            docker-compose version
+            # echo "Docker Compose version:"
+            # docker-compose version
 
-            # Navigate to target directory (ensure repo exists)
-            if [ ! -d "${{ secrets.EC2_TARGET_DIR }}" ]; then
-              mkdir -p ${{ secrets.EC2_TARGET_DIR }}
-            fi
-            cd ${{ secrets.EC2_TARGET_DIR }}
+            # # Navigate to target directory (ensure repo exists)
+            # if [ ! -d "${{ secrets.EC2_TARGET_DIR }}" ]; then
+            #   mkdir -p ${{ secrets.EC2_TARGET_DIR }}
+            # fi
+            # cd ${{ secrets.EC2_TARGET_DIR }}
 
-            # Stop all running containers
-            docker-compose down
+            # # Stop all running containers
+            # docker-compose down
 
-            # Cleanup dangling images only
-            docker image prune -f
+            # # Cleanup dangling images only
+            # docker image prune -f
 
-            # For Production
-            chmod +x ./init-letsencrypt.sh
-            sudo ./init-letsencrypt.sh
+            # # For Production
+            # chmod +x ./init-letsencrypt.sh
+            # sudo ./init-letsencrypt.sh
