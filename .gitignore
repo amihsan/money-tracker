@@ -3,7 +3,7 @@
 
 /.env
 .env
-
+help.js
 /backend/.env
 /frontend/.env
 /frontend/amplify

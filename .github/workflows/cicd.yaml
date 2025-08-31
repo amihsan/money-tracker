@@ -76,6 +76,7 @@ jobs:
             TARGET_DIR="$(echo "${{ secrets.EC2_TARGET_DIR }}" | tr -d '\r\n')"
             REPO_URL="https://github.com/amihsan/money-tracker.git"
 
+            # Check if the target directory is already a git repository
             # Ensure target directory exists
             mkdir -p "$TARGET_DIR"
             cd "$TARGET_DIR" || { echo "Failed to cd into $TARGET_DIR"; exit 1; }
