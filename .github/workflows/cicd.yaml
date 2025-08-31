@@ -138,6 +138,9 @@ jobs:
             # Deploy containers
             echo "Deploying containers with Docker Compose..."
             docker-compose down
+            docker images -a
+            docker image prune -a
+
             docker-compose pull
             docker-compose up -d --remove-orphans
 
