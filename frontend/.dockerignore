@@ -6,7 +6,6 @@
 ./frontend/.env.template
 ./frontend/Dockerfile
 ./frontend/.dockerignore
-./frontend/help/
 node_modules
 dist
 .git
