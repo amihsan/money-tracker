@@ -73,6 +73,22 @@ jobs:
               sudo $PKG_MANAGER install -y git
             fi
 
+            # Check if the target directory is already a git repository 
+            if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then 
+              # If the directory is a git repository, navigate to it 
+              cd ${{ secrets.EC2_TARGET_DIR }} 
+              # Stash any local changes 
+              echo "Stashing local changes..." 
+              git stash 
+              # Pull the latest changes from the main branch 
+              echo "Pulling latest changes..." 
+              git pull origin main 
+            else 
+              # If the directory is not a git repository, clone the repository 
+              echo "Cloning repository..." 
+              git clone https://github.com/amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }} 
+            fi
+
             # Update known_hosts to prevent SSH issues
             mkdir -p ~/.ssh
             ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
