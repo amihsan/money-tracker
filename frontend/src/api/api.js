@@ -2,7 +2,7 @@ import axios from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
 
 // Flask backend endpoint
-const API_BASE = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL || window._env_.VITE_API_URL;
 
 // Axios instance
 const api = axios.create({

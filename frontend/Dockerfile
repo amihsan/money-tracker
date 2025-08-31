@@ -11,5 +11,13 @@ RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy the entrypoint script (if any)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Expose the default nginx port
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
