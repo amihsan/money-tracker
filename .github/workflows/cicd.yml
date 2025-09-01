@@ -155,6 +155,13 @@ jobs:
             docker system prune -f
             docker-compose -f ../docker-compose.yml up -d --remove-orphans
 
+            # Verify Docker images and containers
+            echo "Docker images:"
+            docker images -a
+            echo "Docker containers:"
+            docker ps -a
+            echo "Deployment completed successfully!"
+
             # # Pull new images and recreate changed services
             # # For Single App on Ec2
             # docker-compose pull
