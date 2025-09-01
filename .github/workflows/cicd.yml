@@ -150,7 +150,13 @@ jobs:
             # Deploy containers
             echo "Deploying containers with Docker Compose..."
 
+            # # For Multi-App on Ec2
+            docker-compose -f ../docker-compose.yml down
+            docker system prune -f
+            docker-compose -f ../docker-compose.yml up -d --remove-orphans
+
             # # Pull new images and recreate changed services
+            # # For Single App on Ec2
             # docker-compose pull
             # docker-compose up -d --remove-orphans
 
