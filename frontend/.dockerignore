@@ -1,6 +1,5 @@
 ./frontend/node_modules/
 ./frontend/.env
-./frontend/.env.client
 ./frontend/.gitignore
 ./frontend/README.md
 ./frontend/.env.template
