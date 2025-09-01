@@ -63,7 +63,7 @@ services:
 #     restart: unless-stopped
 #     image: ${DOCKER_USERNAME}/money-tracker-frontend:latest
 #     ports:
-#       - 8080:80
+#       - 80:80
 #     env_file:
 #       - ./frontend/.env
 #     volumes:
@@ -76,6 +76,6 @@ services:
 #     restart: unless-stopped
 #     image: ${DOCKER_USERNAME}/money-tracker-backend:latest
 #     ports:
-#       - 5001:5001
+#       - 5000:5000
 #     env_file:
 #       - ./backend/.env
