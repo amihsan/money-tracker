@@ -1,24 +1,24 @@
+# Stage 1: Build
 FROM node:22-alpine AS build
 WORKDIR /app
-# copy only frontend dependencies
+
+# Copy dependencies
 COPY package*.json ./
 RUN npm install
 
-# copy rest of frontend
+# Copy the rest of the frontend code
 COPY . .
 
+# Build the project
 RUN npm run build
 
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
-# COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy build output to custom folder for Compose mounting (multiapp)
+# Copy build output to the folder for reverse-proxy
 COPY --from=build /app/dist /usr/share/nginx/moneytracker-frontend
 
-# Copy the entrypoint script (if any)
+# Optional entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-# Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
-
