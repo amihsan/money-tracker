@@ -10,7 +10,10 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+# COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy build output to custom folder for Compose mounting (multiapp)
+COPY --from=build /app/dist /usr/share/nginx/moneytracker-frontend
 
 # Copy the entrypoint script (if any)
 COPY entrypoint.sh /entrypoint.sh

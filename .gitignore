@@ -19,3 +19,4 @@ help.js
 /.dockerignore
 
 /.env
+/help
