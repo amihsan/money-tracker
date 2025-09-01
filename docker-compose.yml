@@ -1,49 +1,37 @@
 ###################################################
 ###### For Lets Encrypt SSL certificate ###########
 ###################################################
-
 services:
   nginx:
     restart: unless-stopped
     image: ${DOCKER_USERNAME}/money-tracker-frontend:latest
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     env_file:
       - ./frontend/.env
+
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./ssl/certbot/conf:/etc/letsencrypt
       - ./ssl/certbot/www:/var/www/certbot
-    depends_on:
-      - backend
-    networks:
-      - app-network
 
   backend:
     restart: unless-stopped
     image: ${DOCKER_USERNAME}/money-tracker-backend:latest
-    expose:
-      - "5001" # Only accessible to other containers
+    ports:
+      - 5001:5001
     env_file:
       - ./backend/.env
-    networks:
-      - app-network
 
   certbot:
     image: certbot/certbot
     restart: unless-stopped
     volumes:
-      - ./ssl/certbot/conf:/etc/letsencrypt
-      - ./ssl/certbot/www:/var/www/certbot
-    entrypoint: >
-      /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+ 
 # ####################################################
 # ######## For using cloudfront & load balancer ######
 # ####################################################
