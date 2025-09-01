@@ -49,36 +49,32 @@ jobs:
 
             # Check if Git is installed
             if ! command -v git &> /dev/null; then
-                echo "Git is not installed."
-                INSTALL_GIT=true
+                echo "Git is not installed. Installing..."
+                sudo yum update -y
+                sudo yum install -y git
             else
                 echo "Git is already installed."
-                INSTALL_GIT=false
             fi
 
-            # Install Git if not already installed
-            if [ "$INSTALL_GIT" = true ]; then
-                sudo yum update
-                sudo yum install -y git
-            fi
-
-            # Check if the target directory is already a git repository
+            # Check if target directory exists and is a git repo
             if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
-                # If the directory is a git repository, navigate to it
+                echo "Repository already exists. Pulling latest changes..."
                 cd ${{ secrets.EC2_TARGET_DIR }}
-                
-                # Stash any local changes
-                echo "Stashing local changes..."
-                git stash
-                
-                # Pull the latest changes from the main branch
-                echo "Pulling latest changes..."
+
+                # Make sure remote is set
+                git remote set-url origin https://github.com/amihsan/money-tracker-app.git
+
+                # Stash local changes if any
+                git stash || true
+
+                # Pull latest changes
                 git pull origin main
             else
-                # If the directory is not a git repository, clone the repository
-                echo "Cloning repository..."
+                echo "Cloning repository for the first time..."
+                rm -rf ${{ secrets.EC2_TARGET_DIR }}   # make sure it's clean
                 git clone https://github.com/amihsan/money-tracker-app.git ${{ secrets.EC2_TARGET_DIR }}
             fi
+
 
 
             # Update known_hosts to prevent SSH connection issues
