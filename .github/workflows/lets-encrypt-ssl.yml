@@ -1,4 +1,4 @@
-name: CI/CD for SSL Letsencrypt Certificate
+name: CI/CD for Money Tracker App
 
 on:
   push:
@@ -6,114 +6,77 @@ on:
       - main
 
 jobs:
-  Test_build_and_deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repo on GitHub Actions runner
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # Login to Docker Hub (if building/pushing images)
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # - name: Build and Push Docker Images
-      #   run: |
-      #     docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest ./frontend
-      #     docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest
-      #     docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest ./backend
-      #     docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest
-
-      - name: Set up SSH key for EC2
+      # Setup SSH key for EC2
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
 
-      - name: Test SSH Connection
+      # Test SSH connection
+      - name: Test SSH connection
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_HOST_DNS }} "echo SSH connection successful"
 
-      - name: SSH into EC2 Instance and deploy with Docker Compose
+      # Deploy on EC2
+      - name: SSH into EC2 and deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST_DNS }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
 
-            set -e  # Exit immediately if a command exits with a non-zero status
-            sudo yum update
-
-            # Check if Git is installed
+            echo "Updating system and installing Git if needed..."
+            sudo yum update -y
             if ! command -v git &> /dev/null; then
-                echo "Git is not installed. Installing..."
-                sudo yum update -y
                 sudo yum install -y git
-            else
-                echo "Git is already installed."
             fi
 
-            # Check if the target directory is already a git repository
+            # Ensure SSH key exists for GitHub
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+
+            # Clone or pull repo via SSH
             if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
-                # If the directory is a git repository, navigate to it
+                echo "Repository exists. Pulling latest changes..."
                 cd ${{ secrets.EC2_TARGET_DIR }}
-                
-                # Stash any local changes
-                echo "Stashing local changes..."
-                git stash
-                
-                # Pull the latest changes from the main branch
-                echo "Pulling latest changes..."
+                git stash || true
                 git pull origin main
             else
-                # If the directory is not a git repository, clone the repository
-                echo "Cloning repository..."
-                git clone https://github.com/amihsan/money-tracker-app.git ${{ secrets.EC2_TARGET_DIR }}
+                echo "Cloning repository via SSH..."
+                git clone git@github.com:amihsan/money-tracker.git ${{ secrets.EC2_TARGET_DIR }}
             fi
 
-
-
-
-            # Update known_hosts to prevent SSH connection issues
-            echo "Updating known_hosts..."
-            ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
-
-            # Check if Docker Compose is installed, if not, install it
-            if ! command -v docker-compose &> /dev/null; then
-              echo "Installing Docker Compose..."
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
-            fi
-            echo "Docker Compose version:"
-            docker-compose version
-
-            # Check if Docker is installed
+            # Install Docker if not present
             if ! command -v docker &> /dev/null; then
-                echo "Docker is not installed. Installing Docker..."
-                sudo yum update -y
                 sudo yum install -y docker
-                sudo service docker start
+                sudo systemctl start docker
                 sudo usermod -aG docker ${{ secrets.EC2_USERNAME }}
-
-            else
-                echo "Docker is already installed."
             fi
 
-            # Check if the Docker service is running
-            if ! sudo systemctl is-active --quiet docker; then
-                echo "Docker is installed but not running. Starting Docker..."
-                sudo service docker start
+            # Install Docker Compose if not present
+            if ! command -v docker-compose &> /dev/null; then
+                sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                sudo chmod +x /usr/local/bin/docker-compose
             fi
-
-            # Deploy containers using Docker Compose
-            echo "Deploying containers with Docker Compose..."
-            # stop all running containers
-            docker-compose down
-            echo "Docker Compose version:"
-            docker-compose version
 
             # # For Production
             # chmod +x ./init-letsencrypt.sh
