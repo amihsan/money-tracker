@@ -9,7 +9,7 @@ domains=(moneytracker.me www.moneytracker.me)
 rsa_key_size=4096
 data_path="./ssl/certbot"
 email="rumi.others@gmail.com" # Adding a valid address is strongly recommended
-staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits # 1 = test, 0 = production
+staging=1 # Set to 1 if you're testing your setup to avoid hitting request limits # 1 = test, 0 = production
 
 
 if [ -d "$data_path" ]; then
