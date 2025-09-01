@@ -135,19 +135,19 @@ jobs:
             fi
             cd ${{ secrets.EC2_TARGET_DIR }}
 
-            # Deploy containers
-            echo "Deploying containers with Docker Compose..."
+            # # Deploy containers
+            # echo "Deploying containers with Docker Compose..."
 
-            # Pull new images and recreate changed services
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            # # Pull new images and recreate changed services
+            # docker-compose pull
+            # docker-compose up -d --remove-orphans
 
-            # Cleanup dangling images only
-            docker image prune -f
+            # # Cleanup dangling images only
+            # docker image prune -f
 
-            # Verify Docker images and containers
-            echo "Docker images:"
-            docker images -a
-            echo "Docker containers:"
-            docker ps -a
-            echo "Deployment completed successfully!"
+            # # Verify Docker images and containers
+            # echo "Docker images:"
+            # docker images -a
+            # echo "Docker containers:"
+            # docker ps -a
+            # echo "Deployment completed successfully!"
