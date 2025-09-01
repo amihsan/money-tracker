@@ -56,20 +56,24 @@ jobs:
                 echo "Git is already installed."
             fi
 
-            # Navigate to the target directory
+            # Check if the target directory is already a git repository
             if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
+                # If the directory is a git repository, navigate to it
                 cd ${{ secrets.EC2_TARGET_DIR }}
-
-                # Stash local changes if any
-                git stash || true
-
-                # Pull the latest changes from main branch
+                
+                # Stash any local changes
+                echo "Stashing local changes..."
+                git stash
+                
+                # Pull the latest changes from the main branch
                 echo "Pulling latest changes..."
                 git pull origin main
             else
-                echo "Directory exists but is not a git repo. Cloning repository..."
+                # If the directory is not a git repository, clone the repository
+                echo "Cloning repository..."
                 git clone https://github.com/amihsan/money-tracker-app.git ${{ secrets.EC2_TARGET_DIR }}
             fi
+
 
 
 
