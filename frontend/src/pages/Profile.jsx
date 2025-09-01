@@ -1,4 +1,3 @@
-// src/Pages/Profile.jsx
 import { useState, useEffect } from "react";
 import { Edit2, Trash2, Save, Camera } from "lucide-react";
 import axios from "axios";
