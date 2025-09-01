@@ -15,11 +15,8 @@ RUN npm run build
 # Nginx stage
 FROM nginx:alpine
 
-# Create app directory inside nginx
-RUN mkdir -p /usr/share/nginx/moneytracker-frontend
-
 # Copy build output to Nginx
-COPY --from=build /app/dist /usr/share/nginx/moneytracker-frontend
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
