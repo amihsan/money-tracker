@@ -1,6 +1,7 @@
 ###################################################
 ###### For Lets Encrypt SSL certificate ###########
 ###################################################
+
 services:
   nginx:
     restart: unless-stopped
@@ -8,36 +9,26 @@ services:
     ports:
       - "80:80"
       - "443:443"
-
     env_file:
       - ./frontend/.env
-
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./ssl/certbot/conf:/etc/letsencrypt
       - ./ssl/certbot/www:/var/www/certbot
-    # For using AWS CloudWatch for logging, uncomment the following lines:
-    # logging:
-    #   driver: "awslogs"
-    #   options:
-    #     awslogs-group: "nginx-logs" # Replace with your log group name
-    #     awslogs-region: "eu-central-1" # Replace with your region
-    #     awslogs-stream: "nginx-stream" # You can use a dynamic stream name like nginx-${HOSTNAME}
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
   backend:
     restart: unless-stopped
     image: ${DOCKER_USERNAME}/money-tracker-backend:latest
-    ports:
-      - 5001:5001
+    expose:
+      - "5001" # Only accessible to other containers
     env_file:
       - ./backend/.env
-    # For using AWS CloudWatch for logging, uncomment the following lines:
-    # logging:
-    #   driver: "awslogs"
-    #   options:
-    #     awslogs-group: "backend-logs" # Replace with your log group name
-    #     awslogs-region: "eu-central-1" # Replace with your region
-    #     awslogs-stream: "backend-stream" # You can use a dynamic stream name like backend-${HOSTNAME}
+    networks:
+      - app-network
 
   certbot:
     image: certbot/certbot
@@ -45,14 +36,14 @@ services:
     volumes:
       - ./ssl/certbot/conf:/etc/letsencrypt
       - ./ssl/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    # For using AWS CloudWatch for logging, uncomment the following lines:
-    # logging:
-    #   driver: "awslogs"
-    #   options:
-    #     awslogs-group: "certbot-logs" # Replace with your log group name
-    #     awslogs-region: "eu-central-1" # Replace with your region
-    #     awslogs-stream: "certbot-stream" # You can use a dynamic stream name like certbot-${HOSTNAME}
+    entrypoint: >
+      /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 # ####################################################
 # ######## For using cloudfront & load balancer ######
 # ####################################################

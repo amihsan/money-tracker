@@ -103,6 +103,7 @@ jobs:
 
             echo "Docker Compose version:"
             docker-compose version
+            docker-compose down
 
             # # # For Production
             # chmod +x ./init-letsencrypt.sh
