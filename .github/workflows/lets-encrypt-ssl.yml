@@ -43,67 +43,79 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -e
 
-            # Export Docker Hub username
-            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            set -e  # Exit immediately if a command exits with a non-zero status
+            sudo yum update
 
-            # Detect Amazon Linux version
-            if [ -f /etc/os-release ]; then
-              . /etc/os-release
-              if [[ "$VERSION_ID" == "2" ]]; then
-                PKG_MANAGER="yum"
-              else
-                PKG_MANAGER="dnf"
-              fi
-            else
-              PKG_MANAGER="yum"
-            fi
-
-            echo "Using package manager: $PKG_MANAGER"
-
-            # Update system
-            sudo $PKG_MANAGER upgrade -y
-
-            # Install Git if missing
+            # Check if Git is installed
             if ! command -v git &> /dev/null; then
-              echo "Installing Git..."
-              sudo $PKG_MANAGER install -y git
+                echo "Git is not installed."
+                INSTALL_GIT=true
+            else
+                echo "Git is already installed."
+                INSTALL_GIT=false
             fi
 
-            # Ensure target directory exists
-            mkdir -p "${{ secrets.EC2_TARGET_DIR }}"
-            cd "${{ secrets.EC2_TARGET_DIR }}"
+            # Install Git if not already installed
+            if [ "$INSTALL_GIT" = true ]; then
+                sudo yum update
+                sudo yum install -y git
+            fi
 
-            # Clone or pull the latest code
-            if [ -d ".git" ]; then
-                echo "Repository exists. Updating..."
+            # Check if the target directory is already a git repository
+            if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
+                # If the directory is a git repository, navigate to it
+                cd ${{ secrets.EC2_TARGET_DIR }}
+                
+                # Stash any local changes
+                echo "Stashing local changes..."
                 git stash
+                
+                # Pull the latest changes from the main branch
+                echo "Pulling latest changes..."
                 git pull origin main
             else
+                # If the directory is not a git repository, clone the repository
                 echo "Cloning repository..."
-                git clone https://github.com/amihsan/money-tracker-app.git .
+                git clone https://github.com/amihsan/money-tracker-app.git ${{ secrets.EC2_TARGET_DIR }}
             fi
 
-            # Update known_hosts safely
+
+            # Update known_hosts to prevent SSH connection issues
+            echo "Updating known_hosts..."
             ssh-keyscan -H ${{ secrets.EC2_HOST_DNS }} >> ~/.ssh/known_hosts
 
-            # Install Docker if missing
-            if ! command -v docker &> /dev/null; then
-              echo "Installing Docker..."
-              sudo $PKG_MANAGER install -y docker
-              sudo systemctl enable docker
-              sudo systemctl start docker
-              sudo usermod -aG docker ${{ secrets.EC2_USERNAME }}
-            fi
-
-            # Install Docker Compose if missing
+            # Check if Docker Compose is installed, if not, install it
             if ! command -v docker-compose &> /dev/null; then
               echo "Installing Docker Compose..."
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
             fi
+            echo "Docker Compose version:"
+            docker-compose version
 
+            # Check if Docker is installed
+            if ! command -v docker &> /dev/null; then
+                echo "Docker is not installed. Installing Docker..."
+                sudo yum update -y
+                sudo yum install -y docker
+                sudo service docker start
+                sudo usermod -aG docker ${{ secrets.EC2_USERNAME }}
+
+            else
+                echo "Docker is already installed."
+            fi
+
+            # Check if the Docker service is running
+            if ! sudo systemctl is-active --quiet docker; then
+                echo "Docker is installed but not running. Starting Docker..."
+                sudo service docker start
+            fi
+
+            # Deploy containers using Docker Compose
+            echo "Deploying containers with Docker Compose..."
+            # stop all running containers
+            docker-compose down
             echo "Docker Compose version:"
             docker-compose version
 
