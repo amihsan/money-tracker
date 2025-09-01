@@ -57,7 +57,7 @@ services:
 #     env_file:
 #       - ./backend/.env
 # #####################################################
-# ######## For local development without SSL ##########
+# ########## For local development without SSL ########
 # services:
 #   nginx:
 #     restart: unless-stopped
