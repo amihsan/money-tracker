@@ -19,5 +19,3 @@ RUN chmod +x /entrypoint.sh
 # Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Expose the default nginx port
-EXPOSE 80
