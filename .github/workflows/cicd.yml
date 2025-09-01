@@ -76,15 +76,30 @@ jobs:
             TARGET_DIR="$(echo "${{ secrets.EC2_TARGET_DIR }}" | tr -d '\r\n')"
             REPO_URL="https://github.com/amihsan/money-tracker.git"
 
-            # Check if the target directory is already a git repository
             # Ensure target directory exists
             mkdir -p "$TARGET_DIR"
             cd "$TARGET_DIR" || { echo "Failed to cd into $TARGET_DIR"; exit 1; }
 
             if [ -d ".git" ]; then
                 echo "Repository exists. Updating..."
+                
+                # Stash any local changes
+                if ! git diff --quiet || ! git diff --cached --quiet; then
+                    echo "Stashing local changes..."
+                    git stash push -m "Auto-stash before rebase"
+                    STASHED=true
+                else
+                    STASHED=false
+                fi
+
                 git fetch origin main
                 git rebase origin/main
+
+                # Apply stashed changes if any
+                if [ "$STASHED" = true ]; then
+                    echo "Applying stashed changes..."
+                    git stash pop || echo "No stash to apply"
+                fi
             else
                 echo "Directory exists but is not a git repo. Initializing..."
                 git init
@@ -95,6 +110,7 @@ jobs:
             fi
 
             echo "Deployment updated successfully!"
+
 
 
 
