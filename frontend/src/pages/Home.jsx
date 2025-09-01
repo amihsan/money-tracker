@@ -5,7 +5,7 @@ export default function Home({ user, onLoginClick }) {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-indigo-100 p-4 sm:p-6 lg:p-12">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-100 via-teal to-teal-100 p-4 sm:p-6 lg:p-12">
       <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6 mb-8 sm:mb-10">

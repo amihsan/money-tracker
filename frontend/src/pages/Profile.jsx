@@ -87,7 +87,7 @@ export default function Profile({ user, onLogout }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-xl rounded-xl mt-6">
+    <div className="max-w-3xl mx-auto p-6 bg-teal-100 shadow-xl rounded-xl mt-6">
       {/* Avatar */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
         <div className="relative">
@@ -170,16 +170,6 @@ export default function Profile({ user, onLogout }) {
             )}
           </div>
         ))}
-      </div>
-
-      {/* Logout */}
-      <div className="mt-6 text-center">
-        <button
-          className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          onClick={onLogout}
-        >
-          Logout
-        </button>
       </div>
     </div>
   );

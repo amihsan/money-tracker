@@ -168,7 +168,7 @@ export default function Dashboard({ user }) {
   }
 
   return (
-    <div className="mt-6 w-full max-w-full px-2 sm:px-4">
+    <div className="mt-6 w-full max-w-full px-2 sm:px-4 bg-teal-100">
       {/* Welcome Message */}
       <div className="mb-6 p-4 sm:p-6 bg-indigo-200 border border-indigo-200 rounded-xl shadow text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-2">
@@ -258,7 +258,7 @@ export default function Dashboard({ user }) {
 
       {/* Person Summary Table */}
       <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold text-green-500 mb-4 text-center">
+        <h2 className="text-xl sm:text-2xl font-semibold text-indigo-600 mb-4 text-center">
           Transactions by Person
         </h2>
         <div className="bg-white rounded-xl shadow border overflow-x-auto">
@@ -351,7 +351,7 @@ export default function Dashboard({ user }) {
 
       {/* Transactions Table */}
       <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-semibold text-indigo-500 mb-4 text-center">
+        <h2 className="text-xl sm:text-2xl font-semibold text-green-600 mb-4 text-center">
           Transaction History
         </h2>
         <div className="bg-white rounded-xl shadow border overflow-x-auto">
