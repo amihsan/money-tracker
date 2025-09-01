@@ -19,12 +19,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker Images
-        run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest ./frontend
-          docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest
-          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest ./backend
-          docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest
+      # - name: Build and Push Docker Images
+      #   run: |
+      #     docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest ./frontend
+      #     docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-frontend:latest
+      #     docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest ./backend
+      #     docker push ${{ secrets.DOCKER_USERNAME }}/money-tracker-backend:latest
 
       - name: Set up SSH key for EC2
         run: |
@@ -56,22 +56,18 @@ jobs:
                 echo "Git is already installed."
             fi
 
-            # Check if target directory exists and is a git repo
+            # Navigate to the target directory
             if [ -d "${{ secrets.EC2_TARGET_DIR }}/.git" ]; then
-                echo "Repository already exists. Pulling latest changes..."
                 cd ${{ secrets.EC2_TARGET_DIR }}
-
-                # Make sure remote is set
-                git remote set-url origin https://github.com/amihsan/money-tracker-app.git
 
                 # Stash local changes if any
                 git stash || true
 
-                # Pull latest changes
+                # Pull the latest changes from main branch
+                echo "Pulling latest changes..."
                 git pull origin main
             else
-                echo "Cloning repository for the first time..."
-                rm -rf ${{ secrets.EC2_TARGET_DIR }}   # make sure it's clean
+                echo "Directory exists but is not a git repo. Cloning repository..."
                 git clone https://github.com/amihsan/money-tracker-app.git ${{ secrets.EC2_TARGET_DIR }}
             fi
 
