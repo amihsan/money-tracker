@@ -170,7 +170,7 @@ export default function Dashboard({ user }) {
   return (
     <div className="mt-6 w-full max-w-full px-2 sm:px-4">
       {/* Welcome Message */}
-      <div className="mb-6 p-4 sm:p-6 bg-indigo-50 border border-indigo-200 rounded-xl shadow text-center">
+      <div className="mb-6 p-4 sm:p-6 bg-indigo-200 border border-indigo-200 rounded-xl shadow text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-2">
           Welcome back, {user.signInDetails?.loginId || user.username}!
         </h2>
@@ -182,13 +182,13 @@ export default function Dashboard({ user }) {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl shadow text-center sm:text-left">
+        <div className="p-4 bg-red-200 border border-red-200 rounded-xl shadow text-center sm:text-left">
           <h2 className="text-sm sm:text-base text-gray-600">Total Borrowed</h2>
           <p className="text-xl sm:text-2xl font-bold text-red-700">
             € {totals.netBorrowed.toFixed(2)}
           </p>
         </div>
-        <div className="p-4 bg-green-50 border border-green-200 rounded-xl shadow text-center sm:text-left">
+        <div className="p-4 bg-green-200 border border-green-200 rounded-xl shadow text-center sm:text-left">
           <h2 className="text-sm sm:text-base text-gray-600">Total Lent</h2>
           <p className="text-xl sm:text-2xl font-bold text-green-700">
             € {totals.netLent.toFixed(2)}
