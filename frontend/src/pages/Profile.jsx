@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
-import { Edit2, Trash2, Save, Camera } from "lucide-react";
-import axios from "axios";
+import { Edit2, Trash2, Save, Camera, Upload, AlertCircle } from "lucide-react";
+import { useAuthenticator } from "@aws-amplify/ui-react";
+import {
+  getProfile,
+  updateProfile,
+  uploadAvatar,
+  deleteAvatar,
+} from "../api/api";
 
-export default function Profile({ user, onLogout }) {
+export default function Profile() {
+  const { user } = useAuthenticator((ctx) => [ctx.user]);
   const [profile, setProfile] = useState({
     username: "",
     email: "",
@@ -11,19 +18,20 @@ export default function Profile({ user, onLogout }) {
   });
   const [editing, setEditing] = useState({});
   const [avatarFile, setAvatarFile] = useState(null);
+  const [hoverAvatar, setHoverAvatar] = useState(false);
 
+  // Fetch profile on mount
   useEffect(() => {
-    if (!user) return;
     async function fetchProfile() {
       try {
-        const res = await axios.get(`/api/profile/${user.id}`);
-        setProfile(res.data);
+        const data = await getProfile();
+        setProfile(data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching profile:", err);
       }
     }
     fetchProfile();
-  }, [user]);
+  }, []);
 
   const handleChange = (field, value) => {
     setProfile({ ...profile, [field]: value });
@@ -35,10 +43,11 @@ export default function Profile({ user, onLogout }) {
 
   const saveField = async (field) => {
     try {
-      await axios.put(`/api/profile/${user.id}`, { [field]: profile[field] });
+      const updated = await updateProfile({ [field]: profile[field] });
+      setProfile(updated);
       toggleEdit(field);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to update profile:", err);
       alert("Failed to update");
     }
   };
@@ -47,91 +56,109 @@ export default function Profile({ user, onLogout }) {
     if (e.target.files[0]) setAvatarFile(e.target.files[0]);
   };
 
-  const uploadAvatar = async () => {
+  const handleUploadAvatar = async () => {
     if (!avatarFile) return;
-    const formData = new FormData();
-    formData.append("avatar", avatarFile);
     try {
-      const res = await axios.put(`/api/profile/${user.id}/avatar`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setProfile({ ...profile, avatar: res.data.avatar });
+      const res = await uploadAvatar(avatarFile);
+      setProfile({ ...profile, avatar: res.avatar });
       setAvatarFile(null);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to upload avatar:", err);
       alert("Failed to upload avatar");
     }
   };
 
-  const deleteAvatar = async () => {
+  const handleDeleteAvatar = async () => {
     try {
-      await axios.delete(`/api/profile/${user.id}/avatar`);
+      await deleteAvatar();
       setProfile({ ...profile, avatar: "" });
+      setAvatarFile(null);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to delete avatar:", err);
       alert("Failed to delete avatar");
     }
   };
 
+  // Render for non-logged-in users
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-600 p-4">
-        <h2 className="text-2xl font-semibold mb-2 text-center">
-          You’re not logged in
-        </h2>
-        <p className="text-gray-500 text-center">
-          Please log in to view your profile.
-        </p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-100 via-teal to-teal-100 p-6">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-lg">
+          <AlertCircle className="mx-auto w-12 h-12 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Login Required</h2>
+          <p className="text-gray-700 mb-4">
+            You must be logged in to access the Profile. Please log in to
+            continue.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-teal-100 shadow-xl rounded-xl mt-6">
-      {/* Avatar */}
-      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
-        <div className="relative">
+    <div className="max-w-3xl mx-auto p-6 bg-teal-100 shadow-xl rounded-2xl mt-6 border border-gray-200">
+      {/* Avatar Section */}
+      <div
+        className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 relative"
+        onMouseEnter={() => setHoverAvatar(true)}
+        onMouseLeave={() => setHoverAvatar(false)}
+      >
+        <div className="relative group">
           <img
-            src={profile.avatar || "/default-avatar.png"}
+            src={
+              avatarFile
+                ? URL.createObjectURL(avatarFile) // local preview
+                : profile.avatar || "/default-avatar.png" // uploaded avatar
+            }
             alt="Avatar"
-            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border"
+            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-2 border-gray-300 shadow-md transition-transform transform group-hover:scale-105"
           />
-          <label className="absolute bottom-0 right-0 bg-indigo-600 text-white rounded-full p-2 cursor-pointer hover:bg-indigo-700">
-            <Camera className="w-5 h-5" />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
-          </label>
-        </div>
-        <div className="flex flex-col gap-2 w-full">
-          {avatarFile && (
-            <div className="flex gap-2 items-center">
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-1"
-                onClick={uploadAvatar}
+
+          {/* Hover overlay for icons */}
+          {(hoverAvatar || avatarFile) && (
+            <div className="absolute inset-0 flex justify-center items-center gap-3 bg-black bg-opacity-30 rounded-full transition-opacity">
+              <label
+                className="bg-indigo-600 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-700 transition"
+                title="Upload Avatar"
               >
-                <Save className="w-4 h-4" /> Upload
-              </button>
-              <button
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-1"
-                onClick={() => setAvatarFile(null)}
-              >
-                <Trash2 className="w-4 h-4" /> Cancel
-              </button>
+                <Camera className="w-5 h-5" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
+              </label>
+              {profile.avatar && !avatarFile && (
+                <button
+                  className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
+                  onClick={handleDeleteAvatar}
+                  title="Delete Avatar"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              )}
             </div>
           )}
-          {profile.avatar && (
-            <button
-              className="text-red-600 hover:underline text-sm mt-1"
-              onClick={deleteAvatar}
-            >
-              Delete Avatar
-            </button>
-          )}
         </div>
+
+        {/* Upload / Cancel Buttons */}
+        {avatarFile && (
+          <div className="flex gap-3 mt-4 sm:mt-0">
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md"
+              onClick={handleUploadAvatar}
+            >
+              <Upload className="w-4 h-4" /> Upload
+            </button>
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-xl hover:bg-gray-500 transition shadow-md"
+              onClick={() => setAvatarFile(null)}
+            >
+              <Trash2 className="w-4 h-4" /> Cancel
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Profile Fields */}
@@ -139,7 +166,7 @@ export default function Profile({ user, onLogout }) {
         {["username", "email", "address"].map((field) => (
           <div
             key={field}
-            className="flex flex-col sm:flex-row sm:items-center gap-2"
+            className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100"
           >
             <span className="font-semibold w-28 capitalize">{field}</span>
             {editing[field] ? (
@@ -151,7 +178,7 @@ export default function Profile({ user, onLogout }) {
                   className="border p-2 rounded w-full sm:w-auto flex-1"
                 />
                 <button
-                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-1"
+                  className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
                   onClick={() => saveField(field)}
                 >
                   <Save className="w-4 h-4" /> Save
@@ -161,7 +188,7 @@ export default function Profile({ user, onLogout }) {
               <>
                 <span className="flex-1">{profile[field] || "-"}</span>
                 <button
-                  className="px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center gap-1"
+                  className="flex items-center gap-2 px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
                   onClick={() => toggleEdit(field)}
                 >
                   <Edit2 className="w-4 h-4" /> Edit

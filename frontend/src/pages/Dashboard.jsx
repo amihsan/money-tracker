@@ -1,5 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
-import { PlusCircle, Trash2, CheckCircle2, Calendar, Info } from "lucide-react";
+import {
+  PlusCircle,
+  Trash2,
+  CheckCircle2,
+  Calendar,
+  Info,
+  AlertCircle,
+} from "lucide-react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePickerCell from "../components/DatePickerCell";
 
@@ -156,13 +163,15 @@ export default function Dashboard({ user }) {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-600 p-4">
-        <h2 className="text-2xl font-semibold mb-2 text-center">
-          You’re not logged in
-        </h2>
-        <p className="text-gray-500 text-center">
-          Please log in to access the dashboard.
-        </p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-100 via-teal to-teal-100 p-6">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-lg">
+          <AlertCircle className="mx-auto w-12 h-12 text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Login Required</h2>
+          <p className="text-gray-700 mb-4">
+            You must be logged in to access the Dashboard. Please log in to
+            continue.
+          </p>
+        </div>
       </div>
     );
   }

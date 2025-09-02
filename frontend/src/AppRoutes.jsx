@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import LoginModal from "./components/LoginModal";
 import Footer from "./components/Footer";
+import Contact from "./pages/Contact";
 
 // Mock fetch function
 async function fetchUserData(user) {
@@ -96,6 +97,7 @@ export default function AppRoutes() {
             path="/profile"
             element={<Profile user={user} userData={userData} />}
           />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
 
