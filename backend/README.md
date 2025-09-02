@@ -49,5 +49,5 @@ This is the Backend of the Money Tracker App. It contains all the application lo
    and then in backend root:
 
    ```bash
-   flask run
+   python app.py
    ```
