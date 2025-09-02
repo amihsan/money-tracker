@@ -10,7 +10,9 @@ This is the Backend of the Money Tracker App. It contains all the application lo
 
 ### ⚙️ Local Setup
 
-1. Install MongoDB
+1. **Create DynamoDB Table**  
+   - Primary key: `user_id`  
+   - Sort key: `transaction_id`
 
 2. Setup virtual env in backend root:
    ```shell
@@ -42,12 +44,11 @@ This is the Backend of the Money Tracker App. It contains all the application lo
 
 ### 🏠 Local Usage
 
-1. Run local MongoDB
-
-2. Run backend: after activate venv:
-
-   and then in backend root:
+1. Run backend: after activate venv:
 
    ```bash
+   cd backend
+   .\venv\Scripts\activate # Windows activate venv
+   source venv/bin/activate # Linux/Mac activate venv
    python app.py
    ```
