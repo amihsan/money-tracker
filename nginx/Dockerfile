@@ -30,5 +30,11 @@ COPY --from=money-build /app/dist /usr/share/nginx/html/money
 # Copy nginx config
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copy entrypoint script
+COPY nginx/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 80 443
-CMD ["nginx", "-g", "daemon off;"]
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
