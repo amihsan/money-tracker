@@ -153,6 +153,7 @@ jobs:
             # # For Multi-App on same EC2
             docker-compose -f ../docker-compose.yml down
             docker system prune -f
+            docker image prune -f
             # Get latest images
             docker-compose -f ../docker-compose.yml pull
 
