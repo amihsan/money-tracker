@@ -13,10 +13,12 @@ A full-stack web application to track borrowings, repayments, and unpaid amounts
 
 ## 🧱 Built With
 
-- **Frontend:** React, Vite, Tailwind CSS
+- **Frontend:** React, Vite, Tailwind CSS  
 - **Backend:** Python, Flask  
+- **Authentication:** AWS Cognito (user registration, login, and secure API access)  
 - **Database:** DynamoDB  
 - **Cloud & Hosting:** AWS EC2  
+- **SSL/TLS:** Let’s Encrypt via Certbot on AWS EC2  
 - **Containerization:** Docker, Docker Compose  
 - **CI/CD:** GitHub Actions  
 
@@ -24,16 +26,25 @@ A full-stack web application to track borrowings, repayments, and unpaid amounts
 
 ## 🚀 Features
 
-- User registration and authentication  
+- User registration and authentication via **AWS Cognito**  
 - Track borrowings, repayments, and unpaid amounts  
 - CRUD operations for transactions  
 - Mobile-friendly responsive design  
 - Dockerized for local development and production  
-- SSL/TLS via Let's Encrypt on AWS EC2  
-- Automated CI/CD deployment via GitHub Actions  
+- SSL/TLS via **Let’s Encrypt** on AWS EC2  
+- Automated **CI/CD deployment** via GitHub Actions  
 
 ---
 
+## 🛠 Architecture & Flow
+
+1. **Frontend:** React app served via Nginx  
+2. **Backend:** Flask APIs interacting with DynamoDB  
+3. **Authentication:** AWS Cognito manages secure user sign-up/sign-in and JWT tokens  
+4. **Email & Notifications:** AWS SES (optional for contact form)  
+5. **Deployment:** Docker + Docker Compose on EC2  
+6. **CI/CD:** GitHub Actions automatically pulls, builds, and redeploys containers  
+7. **SSL:** Let’s Encrypt managed via Certbot container, renewed automatically  
 
 ---
 
