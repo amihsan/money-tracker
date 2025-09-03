@@ -63,11 +63,11 @@ export default function Contact() {
             </div>
             <div className="flex items-center gap-3 hover:text-indigo-300 transition">
               <Phone className="w-5 h-5" />
-              <span>+49 176 ...</span>
+              <span>+49 17645686988</span>
             </div>
             <div className="flex items-center gap-3 hover:text-indigo-300 transition">
               <MapPin className="w-5 h-5" />
-              <span>Vettersstraße, Chemnitz, Germany</span>
+              <span>Vettersstraße 54/720, 09126 Chemnitz, Germany</span>
             </div>
           </div>
         </div>
