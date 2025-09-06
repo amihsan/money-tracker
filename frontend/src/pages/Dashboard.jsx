@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePickerCell from "../components/DatePickerCell";
+import UserDisplayName from "../components/UserDisplayName";
 
 import {
   getTransactions,
@@ -19,6 +20,7 @@ import {
 export default function Dashboard({ user }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const displayName = UserDisplayName(user);
 
   const [form, setForm] = useState({
     type: "borrowed",
@@ -181,7 +183,7 @@ export default function Dashboard({ user }) {
       {/* Welcome Message */}
       <div className="mb-6 p-4 sm:p-6 bg-indigo-200 border border-indigo-200 rounded-xl shadow text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-2">
-          Welcome back, {user.signInDetails?.loginId || user.username}!
+          Welcome back, {displayName}!
         </h2>
         <p className="text-gray-700 text-sm sm:text-base">
           Here’s your financial overview. You can add new transactions below and
