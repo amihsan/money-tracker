@@ -96,107 +96,109 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-teal-100 shadow-xl rounded-2xl mt-6 border border-gray-200">
-      {/* Avatar Section */}
-      <div
-        className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 relative"
-        onMouseEnter={() => setHoverAvatar(true)}
-        onMouseLeave={() => setHoverAvatar(false)}
-      >
-        <div className="relative group">
-          <img
-            src={
-              avatarFile
-                ? URL.createObjectURL(avatarFile) // local preview
-                : profile.avatar || "/default-avatar.png" // uploaded avatar
-            }
-            alt="Avatar"
-            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-2 border-gray-300 shadow-md transition-transform transform group-hover:scale-105"
-          />
+    <div className="min-h-screen bg-gradient-to-br from-teal-100 via-teal to-teal-100  p-6">
+      <div className="max-w-3xl mx-auto p-6 bg-teal-500 shadow-xl rounded-2xl mt-6 border border-gray-200">
+        {/* Avatar Section */}
+        <div
+          className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 relative"
+          onMouseEnter={() => setHoverAvatar(true)}
+          onMouseLeave={() => setHoverAvatar(false)}
+        >
+          <div className="relative group">
+            <img
+              src={
+                avatarFile
+                  ? URL.createObjectURL(avatarFile) // local preview
+                  : profile.avatar || "/default-avatar.png" // uploaded avatar
+              }
+              alt="Avatar"
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-2 border-gray-300 shadow-md transition-transform transform group-hover:scale-105"
+            />
 
-          {/* Hover overlay for icons */}
-          {(hoverAvatar || avatarFile) && (
-            <div className="absolute inset-0 flex justify-center items-center gap-3 bg-black bg-opacity-30 rounded-full transition-opacity">
-              <label
-                className="bg-indigo-600 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-700 transition"
-                title="Upload Avatar"
-              >
-                <Camera className="w-5 h-5" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-              </label>
-              {profile.avatar && !avatarFile && (
-                <button
-                  className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
-                  onClick={handleDeleteAvatar}
-                  title="Delete Avatar"
+            {/* Hover overlay for icons */}
+            {(hoverAvatar || avatarFile) && (
+              <div className="absolute inset-0 flex justify-center items-center gap-3 bg-black bg-opacity-30 rounded-full transition-opacity">
+                <label
+                  className="bg-indigo-600 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-700 transition"
+                  title="Upload Avatar"
                 >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              )}
+                  <Camera className="w-5 h-5" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+                {profile.avatar && !avatarFile && (
+                  <button
+                    className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
+                    onClick={handleDeleteAvatar}
+                    title="Delete Avatar"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Upload / Cancel Buttons */}
+          {avatarFile && (
+            <div className="flex gap-3 mt-4 sm:mt-0">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md"
+                onClick={handleUploadAvatar}
+              >
+                <Upload className="w-4 h-4" /> Upload
+              </button>
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-xl hover:bg-gray-500 transition shadow-md"
+                onClick={() => setAvatarFile(null)}
+              >
+                <Trash2 className="w-4 h-4" /> Cancel
+              </button>
             </div>
           )}
         </div>
 
-        {/* Upload / Cancel Buttons */}
-        {avatarFile && (
-          <div className="flex gap-3 mt-4 sm:mt-0">
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-md"
-              onClick={handleUploadAvatar}
+        {/* Profile Fields */}
+        <div className="space-y-4">
+          {["username", "email", "address"].map((field) => (
+            <div
+              key={field}
+              className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100"
             >
-              <Upload className="w-4 h-4" /> Upload
-            </button>
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-xl hover:bg-gray-500 transition shadow-md"
-              onClick={() => setAvatarFile(null)}
-            >
-              <Trash2 className="w-4 h-4" /> Cancel
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Profile Fields */}
-      <div className="space-y-4">
-        {["username", "email", "address"].map((field) => (
-          <div
-            key={field}
-            className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-100"
-          >
-            <span className="font-semibold w-28 capitalize">{field}</span>
-            {editing[field] ? (
-              <>
-                <input
-                  type="text"
-                  value={profile[field]}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                  className="border p-2 rounded w-full sm:w-auto flex-1"
-                />
-                <button
-                  className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                  onClick={() => saveField(field)}
-                >
-                  <Save className="w-4 h-4" /> Save
-                </button>
-              </>
-            ) : (
-              <>
-                <span className="flex-1">{profile[field] || "-"}</span>
-                <button
-                  className="flex items-center gap-2 px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-                  onClick={() => toggleEdit(field)}
-                >
-                  <Edit2 className="w-4 h-4" /> Edit
-                </button>
-              </>
-            )}
-          </div>
-        ))}
+              <span className="font-semibold w-28 capitalize">{field}</span>
+              {editing[field] ? (
+                <>
+                  <input
+                    type="text"
+                    value={profile[field]}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                    className="border p-2 rounded w-full sm:w-auto flex-1"
+                  />
+                  <button
+                    className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                    onClick={() => saveField(field)}
+                  >
+                    <Save className="w-4 h-4" /> Save
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-1">{profile[field] || "-"}</span>
+                  <button
+                    className="flex items-center gap-2 px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                    onClick={() => toggleEdit(field)}
+                  >
+                    <Edit2 className="w-4 h-4" /> Edit
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
