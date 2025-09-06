@@ -7,11 +7,11 @@ const api = axios.create({
   baseURL: API_BASE,
 });
 
-// ✅ Attach Cognito ID token to Authorization header
+// ✅ Attach Cognito Access token to Authorization header
 api.interceptors.request.use(async (config) => {
   try {
     const session = await fetchAuthSession();
-    const token = session.tokens?.idToken?.toString();
+    const token = session.tokens?.accessToken?.toString();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
