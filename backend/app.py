@@ -19,6 +19,7 @@ transactions_table = dynamodb.Table(os.getenv("DYNAMODB_TABLE"))
 users_table = dynamodb.Table(os.getenv("USERS_TABLE"))
 messages_table = dynamodb.Table(os.getenv("CONTACT_TABLE"))
 s3 = boto3.client("s3", region_name=REGION)
+ses_client = boto3.client("ses", region_name=REGION)
 S3_BUCKET = os.getenv("S3_BUCKET_NAME")
 
 
@@ -59,21 +60,134 @@ def submit_contact():
         return jsonify({"error": "All fields are required"}), 400
 
     message_id = str(uuid.uuid4())
+    created_at = datetime.utcnow().isoformat()
+
     item = {
         "message_id": message_id,
-        "user_id": user["sub"],   # store the user ID
+        "user_id": user["sub"],
         "name": name,
         "email": email,
         "message": message,
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": created_at
     }
 
     try:
+        # Save to DynamoDB
         messages_table.put_item(Item=item)
+
+        # ---------- 1. Notify your support inbox ----------
+        ses_client.send_email(
+            Source="contact@moneytracker.me",  # verified in SES
+            Destination={
+                "ToAddresses": ["support@moneytracker.me"],
+            },
+            Message={
+                "Subject": {"Data": f"New Contact Submission from {name}"},
+                "Body": {
+                    "Text": {
+                        "Data": f"""
+New contact form submission:
+
+From: {name} <{email}>
+Message:
+{message}
+
+Message ID: {message_id}
+Time: {created_at}
+                        """
+                    },
+                    "Html": {
+                        "Data": f"""
+<h3>New Contact Form Submission</h3>
+<p><b>From:</b> {name} ({email})</p>
+<p><b>Message:</b></p>
+<p>{message}</p>
+<hr/>
+<p><i>Message ID:</i> {message_id}</p>
+<p><i>Time:</i> {created_at}</p>
+                        """
+                    }
+                }
+            }
+        )
+
+        # ---------- 2. Send confirmation email to user ----------
+        ses_client.send_email(
+            Source="contact@moneytracker.me",
+            Destination={"ToAddresses": [email]},  # user's email
+            Message={
+                "Subject": {"Data": "We received your message - MoneyTracker"},
+                "Body": {
+                    "Text": {
+                        "Data": f"""
+Hi {name},
+
+Thank you for contacting us. We have received your message and our team will get back to you soon.
+
+Your message:
+{message}
+
+Best regards,  
+MoneyTracker Team
+                        """
+                    },
+                    "Html": {
+                        "Data": f"""
+<p>Hi {name},</p>
+<p>Thank you for contacting us. We have received your message and our team will get back to you soon.</p>
+<p><b>Your message:</b></p>
+<p>{message}</p>
+<br/>
+<p>Best regards,<br/>MoneyTracker Team</p>
+                        """
+                    }
+                }
+            }
+        )
+
         return jsonify({"message": "Message submitted successfully"}), 201
+
     except Exception as e:
-        print("DEBUG: Error saving message:", e)
+        print("DEBUG: Error:", e)
         return jsonify({"error": "Internal server error"}), 500
+# @app.route("/api/contact", methods=["POST"])
+# def submit_contact():
+#     # ---------- Auth check ----------
+#     auth_header = request.headers.get("Authorization")
+#     if not auth_header or not auth_header.startswith("Bearer "):
+#         return jsonify({"error": "Unauthorized"}), 401
+#     token = auth_header.split(" ")[1]
+#     try:
+#         user = require_auth(token)  # returns user info if valid
+#     except Exception as e:
+#         print("DEBUG: Auth error:", e)
+#         return jsonify({"error": "Unauthorized"}), 401
+
+#     # ---------- Form data ----------
+#     data = request.json or {}
+#     name = data.get("name")
+#     email = data.get("email")
+#     message = data.get("message")
+
+#     if not name or not email or not message:
+#         return jsonify({"error": "All fields are required"}), 400
+
+#     message_id = str(uuid.uuid4())
+#     item = {
+#         "message_id": message_id,
+#         "user_id": user["sub"],   # store the user ID
+#         "name": name,
+#         "email": email,
+#         "message": message,
+#         "created_at": datetime.utcnow().isoformat()
+#     }
+
+#     try:
+#         messages_table.put_item(Item=item)
+#         return jsonify({"message": "Message submitted successfully"}), 201
+#     except Exception as e:
+#         print("DEBUG: Error saving message:", e)
+#         return jsonify({"error": "Internal server error"}), 500
 
 
 # =========================

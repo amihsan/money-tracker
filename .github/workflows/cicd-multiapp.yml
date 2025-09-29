@@ -1,6 +1,6 @@
 # This GitHub Actions workflow file automates the CI/CD process for a money tracker application.
 # It builds and tests the frontend (React) and backend (Flask) applications,
-name: CI/CD for Money Tracker App
+name: CI/CD for Multi App Deployment (Money Tracker + Quiz App on same EC2)
 
 on:
   push:
@@ -150,13 +150,19 @@ jobs:
             # Deploy containers
             echo "Deploying containers with Docker Compose..."
 
-            # # Pull new images and recreate changed services
-            # # For Single App on Ec2
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            # # For Multi-App on same EC2
+            docker-compose -f ../docker-compose.yml down
+            docker system prune -f
+            docker image prune -a -f
+            # Get latest images
+            docker-compose -f ../docker-compose.yml pull
 
-            # Cleanup dangling images only
-            docker image prune -f
+            # Rebuild Nginx with new React frontend
+            docker-compose -f ../docker-compose.yml build --no-cache nginx
+
+            # Restart everything
+            docker-compose -f ../docker-compose.yml up -d --remove-orphans
+
 
             # Verify Docker images and containers
             echo "Docker images:"
