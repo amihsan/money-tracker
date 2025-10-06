@@ -225,8 +225,8 @@ export default function Dashboard({ user }) {
             >
               <option value="borrowed">Borrowed From</option>
               <option value="lent">Lent To</option>
-              <option value="returned">Returned To</option>
-              <option value="returnFromLent">Return From Lent</option>
+              <option value="returned">Borrow Returned To</option>
+              <option value="returnFromLent">Lent Collected From</option>
             </select>
 
             <input
