@@ -187,9 +187,9 @@ def delete_avatar():
     return jsonify({"message": "Avatar deleted"})
 
 
-# =========================
+# =============================
 # Transactions routes
-# =========================
+# =============================
 @app.route("/api/transactions", methods=["GET"])
 def get_transactions():
     user = get_user_from_header()
