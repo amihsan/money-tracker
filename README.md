@@ -7,7 +7,7 @@ A full-stack web application to track borrowings, repayments, and unpaid amounts
 
 ## 🔗 Live Demo
 
-[https://moneytracker.me](https://moneytracker.me)
+[https://money-tracker-app-pi.vercel.app/](https://money-tracker-app-pi.vercel.app/)
 
 ## 🧱 Built With
 
