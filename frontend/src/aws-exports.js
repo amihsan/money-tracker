@@ -4,22 +4,28 @@
 const awsmobile = {
   aws_project_region:
     import.meta.env.VITE_AWS_REGION || window._env_.VITE_AWS_REGION,
+
   aws_cognito_identity_pool_id:
     import.meta.env.VITE_AWS_IDENTITY_POOL_ID ||
     window._env_.VITE_AWS_IDENTITY_POOL_ID,
+
   aws_cognito_region:
     import.meta.env.VITE_AWS_COGNITO_REGION ||
     window._env_.VITE_AWS_COGNITO_REGION,
+
   aws_user_pools_id:
     import.meta.env.VITE_AWS_USER_POOL_ID || window._env_.VITE_AWS_USER_POOL_ID,
+
   aws_user_pools_web_client_id:
     import.meta.env.VITE_AWS_APP_CLIENT_ID ||
     window._env_.VITE_AWS_APP_CLIENT_ID,
+
   oauth: {
     domain:
       import.meta.env.VITE_AWS_COGNITO_DOMAIN ||
       window._env_.VITE_AWS_COGNITO_DOMAIN ||
       "tracker-auth-dev.auth.eu-central-1.amazoncognito.com",
+
     scope: [
       "phone",
       "email",
@@ -27,26 +33,33 @@ const awsmobile = {
       "profile",
       "aws.cognito.signin.user.admin",
     ],
+
     redirectSignIn:
       import.meta.env.VITE_AWS_REDIRECT_SIGNIN ||
       window._env_.VITE_AWS_REDIRECT_SIGNIN ||
-      "http://localhost:5173/",
+      "http://localhost:5173/,https://moneytracker.me/,https://money-tracker-app-pi.vercel.app/",
+
     redirectSignOut:
       import.meta.env.VITE_AWS_REDIRECT_SIGNOUT ||
       window._env_.VITE_AWS_REDIRECT_SIGNOUT ||
-      "http://localhost:5173/",
+      "http://localhost:5173/,https://moneytracker.me/,https://money-tracker-app-pi.vercel.app/",
+
     responseType: "code",
   },
+
   federationTarget: "COGNITO_USER_POOLS",
+
   aws_cognito_username_attributes: ["EMAIL"],
   aws_cognito_social_providers: [],
   aws_cognito_signup_attributes: ["EMAIL"],
   aws_cognito_mfa_configuration: "OFF",
   aws_cognito_mfa_types: ["SMS"],
+
   aws_cognito_password_protection_settings: {
     passwordPolicyMinLength: 8,
     passwordPolicyCharacters: [],
   },
+
   aws_cognito_verification_mechanisms: ["EMAIL"],
 };
 
