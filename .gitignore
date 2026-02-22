@@ -17,7 +17,7 @@ help.js
 /backend/**/__pycache__/
 
 /.dockerignore
-
+.venv
 /.env
 /help
 docker-compose-multiapp.yml
